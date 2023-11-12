@@ -1,0 +1,8 @@
+.TerminalWindow {
+    color: rgb(0, 255, 0);
+    padding: 1rem;
+    width: 80vw;
+    overflow: scroll;
+    font-family: 'Courier', 'Courier New',
+    monospace;
+}
