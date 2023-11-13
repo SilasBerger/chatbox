@@ -1,0 +1,25 @@
+.InputLine {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 0.4rem;
+}
+
+.prefix {
+    padding-right: 0.5rem;
+}
+
+input[type=text] {
+    background: transparent;
+
+    color: rgb(0, 255, 0);
+    font-family: 'Courier', 'Courier New', monospace;
+    font-size: 1rem;
+
+    border: none;
+    word-break: break-word;
+    outline: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
