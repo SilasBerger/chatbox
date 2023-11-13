@@ -14,7 +14,17 @@ export const vigenere: Game = {
       .withPrompt('Entschlüsseln Sie bitte die Nachricht und geben Sie sie hier ein.')
       .withCorrectAnswers(['CROISSANT', 'croissant'])
       .withResponseToIncorrectAnswer('Das sieht mir nicht ganz richtig aus...')
-      .withResponseToCorrectAnswer('Das ist es! Im Namen der Agency bedanke ich mich für Ihre Hilfe.')
+      .withResponseToCorrectAnswer('Das ist es! Vielen Dank.')
       .build(),
+    DialogLine.of('Da Sie sich mit kryptografie so gut auskennen, muss ich Sie um einen weiteren Gefallen bitten.'),
+    DialogLine.of('Einer unserer besten Agenten ist in grosser Gefahr und muss dringend exfiltriert werden.'),
+    DialogLine.of('SecOps-5 erwartet ihn morgen bei Sonnenaufgang am Treffpunkt KAUFHAUS.'),
+    Question.create()
+      .withPrompt('Verschlüsseln Sie bitte den Namen des Treffpunkts mit dem gleichen Algorithmus und mit dem Schlüsselwort ELIXIR.')
+      .withCorrectAnswers(['OLCCPRYD', 'olccpryd'])
+      .withResponseToIncorrectAnswer('Hmm... Da scheint etwas noch nicht ganz zu stimmen.')
+      .withResponseToCorrectAnswer('Danke. Hoffentlich erinnert sich unser Agent noch an das Schlüsselwort.')
+      .build(),
+    DialogLine.of('Im Namen der Agency danke ich Ihnen für Ihre Hilfe. Seien Sie vorsichtig!'),
   ],
 }

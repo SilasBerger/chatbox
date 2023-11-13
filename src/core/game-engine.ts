@@ -46,7 +46,6 @@ export class GameEngine {
 
     if (!question.correctAnswers.includes(answer)) {
       this.addAgentLine(question.responseToIncorrectAnswer);
-      this.progressDialog();
       return;
     }
 
