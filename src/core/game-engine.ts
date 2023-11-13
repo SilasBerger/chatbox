@@ -7,7 +7,8 @@ export class GameEngine {
 
   constructor(private _game: Game,
               private _onLinesChanged: (_: DialogLine[]) => void,
-              private _onQuestionActiveChanged: (_: boolean) => void) {
+              private _onQuestionActiveChanged: (_: boolean) => void,
+              private _onQuestionSuccessful: () => void) {
   }
 
   progressDialog() {
@@ -54,6 +55,7 @@ export class GameEngine {
     }
     this._activeQuestion = undefined;
     this._onQuestionActiveChanged(false);
+    this._onQuestionSuccessful();
     this.progressDialog();
   }
 

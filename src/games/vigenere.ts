@@ -25,6 +25,6 @@ export const vigenere: Game = {
       .withResponseToIncorrectAnswer('Hmm... Da scheint etwas noch nicht ganz zu stimmen.')
       .withResponseToCorrectAnswer('Danke. Hoffentlich erinnert sich unser Agent noch an das Schlüsselwort.')
       .build(),
-    DialogLine.of('Im Namen der Agency danke ich Ihnen für Ihre Hilfe. Seien Sie vorsichtig!'),
+    DialogLine.of('Im Namen der Agency danke ich Ihnen für Ihre Hilfe. Passen Sie auf sich auf!'),
   ],
 }
