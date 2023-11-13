@@ -2,17 +2,17 @@ import {Component, createSignal, For, Show} from "solid-js";
 import styles from './TerminalWindow.module.css'
 import {OutputLine} from "../OutputLine/OutputLine";
 import {InputLine} from "../InputLine/InputLine";
-import {GameEngine} from "../../core/game-engine";
+import {DialogLine, GameEngine} from "../../core/game-engine";
 import {vigenere} from "../../games/vigenere";
 
 export const TerminalWindow: Component = () => {
 
-  const [lines, setLines] = createSignal<string[]>([]);
+  const [lines, setLines] = createSignal<DialogLine[]>([]);
   const [questionActive, setQuestionActive] = createSignal(false);
 
   const gameEngine = new GameEngine(
     vigenere,
-    (lines: string[]) => setLines(lines),
+    (lines: DialogLine[]) => setLines(lines),
     (questionActive: boolean) => setQuestionActive(questionActive));
   gameEngine.progressDialog();
 
@@ -22,8 +22,8 @@ export const TerminalWindow: Component = () => {
 
   return (
     <div class={styles.TerminalWindow}>
-      <For each={lines()}>{(dialogLine: string) =>
-        <OutputLine text={dialogLine} />
+      <For each={lines()}>{(dialogLine: DialogLine) =>
+        <OutputLine text={dialogLine.text} isUser={dialogLine.isUser} />
       }
       </For>
       <Show when={questionActive()}>

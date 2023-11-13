@@ -3,6 +3,7 @@
     flex-direction: row;
     align-items: flex-start;
     margin-bottom: 0.4rem;
+    color: wheat;
 }
 
 .prefix {
@@ -11,8 +12,9 @@
 
 input[type=text] {
     background: transparent;
+    width: 100%;
 
-    color: rgb(0, 255, 0);
+    color: white;
     font-family: 'Courier', 'Courier New', monospace;
     font-size: 1rem;
 

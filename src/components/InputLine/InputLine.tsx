@@ -1,24 +1,22 @@
-import {Component} from "solid-js";
+import {JSX} from "solid-js";
 import styles from './InputLine.module.css';
 
 export const InputLine = ({onInputEntered}: { onInputEntered: (_: string) => void }) => {
 
-  let currentInput = '';
-
   const handleKeyPress = (keyboardEvent: KeyboardEvent) => {
     if (keyboardEvent.key == 'Enter') {
-      onInputEntered(currentInput);
+      const result = (inputElement as any).value.trim();
+      (inputElement as any).value = '';
+      onInputEntered(result);
     }
   };
 
-  const handleInput = (inputEvent: InputEvent) => {
-    // currentInput = inputEvent.data;
-  };
+  const inputElement: JSX.Element = <input type='text' onKeyPress={handleKeyPress} />;
 
   return (
     <div class={styles.InputLine}>
       <div class={styles.prefix}>&gt;</div>
-      <input type='text' onKeyPress={handleKeyPress} />
+      {inputElement}
     </div>
   );
 }

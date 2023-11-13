@@ -1,12 +1,12 @@
 export class GameEngine {
 
-  private readonly _printedLines: string[] = [];
+  private readonly _printedLines: DialogLine[] = [];
 
   private _nextBeatIndex = 0;
   private _activeQuestion?: Question;
 
   constructor(private _game: Game,
-              private _onLinesChanged: (_: string[]) => void,
+              private _onLinesChanged: (_: DialogLine[]) => void,
               private _onQuestionActiveChanged: (_: boolean) => void) {
   }
 
@@ -25,8 +25,13 @@ export class GameEngine {
     }
   }
 
-  private addLine(line: string) {
-    this._printedLines.push(line);
+  private addAgentLine(line: string) {
+    this._printedLines.push(new DialogLine(line, false));
+    this._onLinesChanged([...this._printedLines]);
+  }
+
+  private addUserLine(line: string) {
+    this._printedLines.push(new DialogLine(line, true));
     this._onLinesChanged([...this._printedLines]);
   }
 
@@ -37,14 +42,16 @@ export class GameEngine {
       return;
     }
 
+    this.addUserLine(answer);
+
     if (!question.correctAnswers.includes(answer)) {
-      this.addLine(question.responseToIncorrectAnswer);
+      this.addAgentLine(question.responseToIncorrectAnswer);
       this.progressDialog();
       return;
     }
 
     if (question.responseToCorrectAnswer) {
-      this.addLine(question.responseToCorrectAnswer);
+      this.addAgentLine(question.responseToCorrectAnswer);
     }
     this._activeQuestion = undefined;
     this._onQuestionActiveChanged(false);
@@ -52,14 +59,14 @@ export class GameEngine {
   }
 
   private playDialogBeat(dialogLine: DialogLine) {
-    this.addLine(dialogLine.text);
+    this.addAgentLine(dialogLine.text);
   }
 
   private playQuestionBeat(question: Question) {
     this._activeQuestion = question;
     this._onQuestionActiveChanged(true);
     if (question.prompt) {
-      this.addLine(question.prompt);
+      this.addAgentLine(question.prompt);
     }
   }
 }
@@ -80,7 +87,7 @@ export class Beat {
 
 export class DialogLine extends Beat {
 
-  constructor(private _text: string) {
+  constructor(private _text: string, private _isUser: boolean) {
     super(BeatType.DialogLine);
   }
 
@@ -88,8 +95,12 @@ export class DialogLine extends Beat {
     return this._text;
   }
 
+  get isUser(): boolean {
+    return this._isUser;
+  }
+
   static of(text: string): DialogLine {
-    return new DialogLine(text);
+    return new DialogLine(text, false);
   }
 }
 
