@@ -16,7 +16,7 @@ export const vigenere: Game = {
       .withResponseToIncorrectAnswer('Das sieht mir nicht ganz richtig aus...')
       .withResponseToCorrectAnswer('Das ist es! Vielen Dank.')
       .build(),
-    DialogLine.of('Da Sie sich mit kryptografie so gut auskennen, muss ich Sie um einen weiteren Gefallen bitten.'),
+    DialogLine.of('Da Sie sich mit Kryptografie so gut auskennen, muss ich Sie um einen weiteren Gefallen bitten.'),
     DialogLine.of('Einer unserer besten Agenten ist in grosser Gefahr und muss dringend exfiltriert werden.'),
     DialogLine.of('SecOps-5 erwartet ihn morgen bei Sonnenaufgang am Treffpunkt KAUFHAUS.'),
     Question.create()
