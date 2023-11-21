@@ -3,7 +3,7 @@ import styles from './TerminalWindow.module.css'
 import {OutputLine} from "../OutputLine/OutputLine";
 import {InputLine} from "../InputLine/InputLine";
 import {DialogLine, GameEngine} from "../../core/game-engine";
-import {vigenere} from "../../games/vigenere";
+import {cryptoBasics} from "../../games/cryptoBasics";
 
 export const TerminalWindow = ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<number>}) => {
 
@@ -18,7 +18,7 @@ export const TerminalWindow = ({setNumSuccessfulQuestions}: {setNumSuccessfulQue
   let numSuccessfulQuestions = 0;
 
   const gameEngine = new GameEngine(
-    vigenere,
+    cryptoBasics,
     (lines: DialogLine[]) => setLines(lines),
     (questionActive: boolean) => setQuestionActive(questionActive),
     onQuestionSuccessful);

@@ -36,6 +36,25 @@ export class GameEngine {
     this._onLinesChanged([...this._printedLines]);
   }
 
+  private isCorrectAnswer(answer: string): boolean {
+    const question = this._activeQuestion;
+    if (!question) {
+      return false;
+    }
+
+    return question.correctAnswers.some(correctAnswer => {
+      if (question.allowSubstringMatch) {
+        return question.respectCase
+          ? answer.includes(correctAnswer)
+          : answer.toLowerCase().includes(correctAnswer.toLowerCase());
+      } else {
+        return question.respectCase
+          ? answer == correctAnswer
+          : answer.toLowerCase() == correctAnswer.toLowerCase();
+      }
+    });
+  }
+
   onNewAnswer(answer: string) {
     const question = this._activeQuestion;
 
@@ -45,7 +64,7 @@ export class GameEngine {
 
     this.addUserLine(answer);
 
-    if (!question.correctAnswers.includes(answer)) {
+    if (!this.isCorrectAnswer(answer)) {
       this.addAgentLine(question.responseToIncorrectAnswer);
       return;
     }
@@ -109,7 +128,9 @@ export class Question extends Beat {
   constructor(private _correctAnswers: string[],
               private _responseToIncorrectAnswer: string,
               private _prompt?: string,
-              private _responseToCorrectAnswer?: string) {
+              private _responseToCorrectAnswer?: string,
+              private _respectCase?: boolean,
+              private _allowSubstringMatch?: boolean) {
     super(BeatType.Question);
   }
 
@@ -129,6 +150,14 @@ export class Question extends Beat {
     return this._responseToCorrectAnswer;
   }
 
+  get respectCase(): boolean {
+    return !!this._respectCase;
+  }
+
+  get allowSubstringMatch(): boolean {
+    return !!this._allowSubstringMatch;
+  }
+
   static create(): QuestionBuilder {
     return new QuestionBuilder();
   }
@@ -140,9 +169,16 @@ export class QuestionBuilder {
   private _responseToIncorrectAnswer?: string;
   private _prompt?: string;
   private _responseToCorrectAnswer?: string;
+  private _respectCase?: boolean;
+  private _allowSubstringMatch?: boolean;
 
   withCorrectAnswers(correctAnswers: string[]) {
     this._correctAnswers = correctAnswers;
+    return this;
+  }
+
+  withAllowSubstringMatch(allowSubstringMatch: boolean) {
+    this._allowSubstringMatch = allowSubstringMatch;
     return this;
   }
 
@@ -168,7 +204,14 @@ export class QuestionBuilder {
     if (!this._responseToIncorrectAnswer) {
       throw 'responseToIncorrectAnswer is required';
     }
-    return new Question(this._correctAnswers, this._responseToIncorrectAnswer, this._prompt, this._responseToCorrectAnswer);
+    return new Question(
+      this._correctAnswers,
+      this._responseToIncorrectAnswer,
+      this._prompt,
+      this._responseToCorrectAnswer,
+      this._respectCase,
+      this._allowSubstringMatch,
+    );
   }
 }
 
