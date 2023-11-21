@@ -1,34 +1,71 @@
+# Chatbox
+A chatform for educational games.
+
 ## Usage
+- `npm install`: Install dependencies
+- `npm run dev`: Run dev server at http://localhost:3000
+- `npm run build`: Build the app for production to the `dist` folder
 
-Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
+## Future Plans
+### Generalize question concept
+Currently, a question simply loops until it receives the correct answer, then continues with the next beat.
+In a more general concept, a question could simply be a function, which maps a given input to
+- any of x possible next dialog branches ("Would you like a tougher challenge?" -> yes-path / no-path)
+  - Since game definitions are pure TS files, each path can be stored in a variable, which should make merging easy
+- a response + loopback (as we currently do on wrong answer)
+- any side effect (backend request, capturing an artifact (see below), etc.)
+- any combination of the above
 
-This is the reason you see a `pnpm-lock.yaml`. That being said, any package manager will work. This file can be safely be removed once you clone a template.
+### Capture artefacts
+Capture facts that arise along the game, such as important answers or generated / observed values, for later use.
 
-```bash
-$ npm install # or pnpm install or yarn install
+```ts
+enum ArtifactKeys {
+  PLAYER_NAME,
+  IS_STRUGGLING,
+}
+
+// At some point while processing an answer to the question "What's your name?"...
+Artefacts.captureString(ArtifactKeys.PLAYER_NAME, answer);
+
+// After the third failed attempt on the same question (do we have the means to track this by question / globally?)...
+Artefacts.captureBool(ArtifactKeys.IS_STRUGGLING, true)
+
+// Then later...
+if (Artefacts.readBool(ArtifactKeys.IS_STRUGGLING)) { 
+  DialogLine.of(`Do you need help, ${Artefacts.readString(ArtifactKeys.PLAYER_NAME)}`);
+}
+
+// And maybe even...
+fetch('https://my-backend.example/chatboxStudentProgress/reportTaskComplete', {
+  method: 'POST',
+  body: {
+    'username': Artifacts.readString(ArtifactKeys.PLAYER_NAME),
+    'gameId': 'cryptoBasics',
+    'taskId': 'caesar-decrypt-no-key',
+    'stats': {
+      'numCompletedTasks': 3
+    }
+  }
+})
 ```
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+### Some concept of navigation
+While it is out-of-scope for this project to provide its own mechanism for saving game states, it should support a way
+to implement this functionality from the outside (e.g. by reporting task completions to a backend and loading this
+information when starting the game, see above). For that, we need some concept of navigation. For instance, tasks
+should probably have IDs. Maybe branches also have IDs, since the same task might occur in more than one branch, and
+more than once in general.
 
-## Available Scripts
+Basically, it should be possible to capture the complete game progress (completed tasks, stats, and maybe even given
+answers) at any point, and reload the game with that exact state later on.
 
-In the project directory, you can run:
+### Configuration + extracting a library
+It should be possible to deploy this application standalone, or embed it into an existing application (such as a
+teaching website).
 
-### `npm run dev` or `npm start`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br>
-
-### `npm run build`
-
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-## Deployment
-
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+There should be these distinct components:
+- Container: used when deploying as standalone application
+- Theme: use default or provide custom 
+- Core / game engine: receives game file, operates on theme
+- type definitions for developing for custom game files
