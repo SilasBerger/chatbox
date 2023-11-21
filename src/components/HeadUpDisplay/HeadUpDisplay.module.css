@@ -47,7 +47,9 @@
 .successfulJobsCount {
     font-size: 2rem;
     width: 100%;
-    border: 1px solid rgb(0, 255, 0);
+    border-bottom: 1px solid rgb(0, 255, 0);
+    border-left: 1px solid rgb(0, 255, 0);
+    border-right: 1px solid rgb(0, 255, 0);
     display: flex;
     justify-content: center;
     align-items: center;
