@@ -1,5 +1,5 @@
 import {createSignal, For, Setter, Show} from "solid-js";
-import styles from './styles.module.css'
+import styles from './styles.module.scss'
 import {DialogLine, GameEngine} from "../../core/game-engine";
 import {cryptoBasics} from "../../games/cryptoBasics";
 import OutputLine from "../OutputLine";

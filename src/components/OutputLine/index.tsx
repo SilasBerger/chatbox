@@ -1,4 +1,4 @@
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 export default ({text, isUser}: {text: string, isUser: boolean}) => {
   return (
