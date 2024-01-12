@@ -1,10 +1,9 @@
 import type { Component } from 'solid-js';
 
-import logo from './logo.svg';
 import styles from './App.module.css';
-import {TerminalWindow} from "./components/TerminalWindow/TerminalWindow";
-import {HeadUpDisplay} from "./components/HeadUpDisplay/HeadUpDisplay";
+import {HeadUpDisplay} from "./components/HeadUpDisplay";
 import {createSignal} from "solid-js";
+import TerminalWindow from "./components/TerminalWindow";
 
 const App: Component = () => {
 

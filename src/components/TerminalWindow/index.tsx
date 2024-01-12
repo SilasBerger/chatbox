@@ -1,11 +1,11 @@
-import {Component, createSignal, For, Setter, Show} from "solid-js";
-import styles from './TerminalWindow.module.css'
-import {OutputLine} from "../OutputLine/OutputLine";
-import {InputLine} from "../InputLine/InputLine";
+import {createSignal, For, Setter, Show} from "solid-js";
+import styles from './styles.module.css'
 import {DialogLine, GameEngine} from "../../core/game-engine";
 import {cryptoBasics} from "../../games/cryptoBasics";
+import OutputLine from "../OutputLine";
+import InputLine from "../InputLine";
 
-export const TerminalWindow = ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<number>}) => {
+export default ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<number>}) => {
 
   const [lines, setLines] = createSignal<DialogLine[]>([]);
   const [questionActive, setQuestionActive] = createSignal(false);

@@ -1,7 +1,6 @@
-import {Component} from "solid-js";
-import styles from './OutputLine.module.css';
+import styles from './styles.module.css';
 
-export const OutputLine = ({text, isUser}: {text: string, isUser: boolean}) => {
+export default ({text, isUser}: {text: string, isUser: boolean}) => {
   return (
     <div classList={{[styles.OutputLine]: true, [styles.byUser]: isUser}}>
       <div class={styles.prefix}>&gt;</div>

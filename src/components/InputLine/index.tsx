@@ -1,7 +1,6 @@
-import {JSX} from "solid-js";
-import styles from './InputLine.module.css';
+import styles from './styles.module.css';
 
-export const InputLine = ({onInputEntered}: { onInputEntered: (_: string) => void }) => {
+export default ({onInputEntered}: { onInputEntered: (_: string) => void }) => {
 
   const handleKeyPress = (keyboardEvent: KeyboardEvent) => {
     if (keyboardEvent.key == 'Enter') {
@@ -11,7 +10,7 @@ export const InputLine = ({onInputEntered}: { onInputEntered: (_: string) => voi
     }
   };
 
-  const inputElement: JSX.Element = <input type='text' onKeyPress={handleKeyPress} />;
+  const inputElement = <input type='text' onKeyPress={handleKeyPress} />;
 
   return (
     <div class={styles.InputLine}>
