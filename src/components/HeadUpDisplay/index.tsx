@@ -32,9 +32,7 @@ export const HeadUpDisplay = ({numSuccessfulQuestions}: {numSuccessfulQuestions:
         <div class={styles.successfulJobsTitle}>Erfolgreiche Aufträge</div>
         <div class={styles.successfulJobsCount}>{numSuccessfulQuestions()}</div>
       </div>
-      <div class={styles.branding}>
-        <div class={styles.brandingVersion}>secureLINK v3.14-alpha</div>
-      </div>
+
     </div>
   );
 }

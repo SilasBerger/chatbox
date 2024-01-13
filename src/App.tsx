@@ -1,9 +1,8 @@
-import type { Component } from 'solid-js';
+import type {Component} from 'solid-js';
+import {createSignal} from "solid-js";
 
 import styles from './App.module.scss';
-import {HeadUpDisplay} from "./components/HeadUpDisplay";
-import {createSignal} from "solid-js";
-import TerminalWindow from "./components/TerminalWindow";
+import ChatboxUi from "./components/ChatboxUi";
 
 const App: Component = () => {
 
@@ -11,8 +10,7 @@ const App: Component = () => {
 
   return (
     <div class={styles.App}>
-      <TerminalWindow setNumSuccessfulQuestions={setNumSuccessfulQuestions} />
-      <HeadUpDisplay numSuccessfulQuestions={numSuccessfulQuestions} />
+      <ChatboxUi></ChatboxUi>
     </div>
   );
 };

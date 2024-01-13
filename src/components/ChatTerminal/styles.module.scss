@@ -5,3 +5,9 @@
     overflow: scroll;
     font-family: 'Courier', 'Courier New', monospace;
 }
+
+:global(.layout-s) {
+    .TerminalWindow {
+        width: 100%;
+    }
+}
