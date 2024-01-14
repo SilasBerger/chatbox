@@ -1,6 +1,12 @@
 import styles from './styles.module.scss';
+import {Accessor, createEffect} from "solid-js";
 
-export default ({onInputEntered}: { onInputEntered: (_: string) => void }) => {
+interface Props {
+  onInputEntered: (_: string) => void,
+  active: Accessor<boolean>;
+}
+
+export default ({onInputEntered, active}: Props) => {
 
   const handleKeyPress = (keyboardEvent: KeyboardEvent) => {
     if (keyboardEvent.key == 'Enter') {
@@ -11,6 +17,11 @@ export default ({onInputEntered}: { onInputEntered: (_: string) => void }) => {
   };
 
   const inputElement = <input type='text' onKeyPress={handleKeyPress} />;
+  createEffect(() => {
+    if (active()) {
+      (inputElement as HTMLInputElement).focus();
+    }
+  })
 
   return (
     <div class={styles.InputLine}>

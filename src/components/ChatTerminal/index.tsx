@@ -1,4 +1,4 @@
-import {createSignal, For, Setter, Show} from "solid-js";
+import {createEffect, createSignal, For, Setter, Show} from "solid-js";
 import styles from './styles.module.scss'
 import {GameEngine} from "../../core/game-engine";
 import {cryptoBasics} from "../../games/cryptoBasics";
@@ -7,6 +7,9 @@ import InputLine from "../InputLine";
 import {Message} from "../../core/models/messages";
 
 export default ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<number>}) => {
+
+  const [inputActive, setInputActive] = createSignal(false);
+  createEffect(() => setInputActive(!!gameEngine.activeQuestion()));
 
   const onQuestionSuccessful = () => {
     numSuccessfulQuestions++;
@@ -30,8 +33,8 @@ export default ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<
         <OutputLine text={dialogLine.text} isUser={dialogLine.isUser} />
       }
       </For>
-      <Show when={!!gameEngine.activeQuestion()}>
-        <InputLine onInputEntered={onInputEntered} />
+      <Show when={inputActive()}>
+        <InputLine onInputEntered={onInputEntered} active={inputActive} />
       </Show>
     </div>
   );
