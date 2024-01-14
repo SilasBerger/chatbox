@@ -15,16 +15,8 @@ export class GameEngine {
   private _nextBeatIndex = 0;
 
   constructor(private _game: Game, private _onQuestionSuccessful: () => void) {
-    const [
-      activeQuestion,
-      setActiveQuestion
-    ] = createSignal<Question | undefined>(undefined);
-    this.activeQuestion = activeQuestion;
-    this._setActiveQuestion = setActiveQuestion;
-
-    const [messages, setMessages] = createSignal<Message[]>([]);
-    this.messages = messages;
-    this._setMessages = setMessages;
+    [this.activeQuestion, this._setActiveQuestion] = createSignal<Question | undefined>(undefined);
+    [this.messages, this._setMessages] = createSignal<Message[]>([]);
   }
 
   progressDialog() {

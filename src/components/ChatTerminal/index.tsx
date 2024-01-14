@@ -1,27 +1,18 @@
-import {createEffect, createSignal, For, Setter, Show} from "solid-js";
+import {createEffect, createSignal, For, Show} from "solid-js";
 import styles from './styles.module.scss'
 import {GameEngine} from "../../core/game-engine";
-import {cryptoBasics} from "../../games/cryptoBasics";
 import OutputLine from "../OutputLine";
 import InputLine from "../InputLine";
 import {Message} from "../../core/models/messages";
 
-export default ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<number>}) => {
+interface Props {
+  gameEngine: GameEngine;
+}
+
+export default ({gameEngine}: Props) => {
 
   const [inputActive, setInputActive] = createSignal(false);
   createEffect(() => setInputActive(!!gameEngine.activeQuestion()));
-
-  const onQuestionSuccessful = () => {
-    numSuccessfulQuestions++;
-    setNumSuccessfulQuestions(numSuccessfulQuestions);
-  }
-
-  let numSuccessfulQuestions = 0;
-
-  const gameEngine = new GameEngine(
-    cryptoBasics,
-    onQuestionSuccessful);
-  gameEngine.progressDialog();
 
   const onInputEntered = (inputValue: string) => {
     gameEngine.onNewAnswer(inputValue);
