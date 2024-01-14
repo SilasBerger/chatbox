@@ -18,15 +18,25 @@ export default ({gameEngine}: Props) => {
     gameEngine.onNewAnswer(inputValue);
   }
 
-  return (
+  const terminal = (
     <div class={styles.TerminalWindow}>
       <For each={gameEngine.messages()}>{(dialogLine: Message) =>
-        <OutputLine text={dialogLine.text} isUser={dialogLine.isUser} />
+        <OutputLine text={dialogLine.text} isUser={dialogLine.isUser}/>
       }
       </For>
       <Show when={inputActive()}>
-        <InputLine onInputEntered={onInputEntered} active={inputActive} />
+        <InputLine onInputEntered={onInputEntered} active={inputActive}/>
       </Show>
     </div>
   );
+
+  // Auto-scroll on new message or active input change.
+  createEffect(() => {
+    gameEngine.messages();
+    inputActive();
+    const element = terminal as HTMLElement;
+    element.scrollTop = element.offsetHeight;
+  });
+
+  return terminal;
 }
