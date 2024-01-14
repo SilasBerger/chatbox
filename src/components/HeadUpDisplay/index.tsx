@@ -1,6 +1,5 @@
 import {Accessor, createSignal} from "solid-js";
-import styles from './HeadUpDisplay.module.css'
-
+import styles from './styles.module.scss'
 
 export const HeadUpDisplay = ({numSuccessfulQuestions}: {numSuccessfulQuestions: Accessor<number>}) => {
 

@@ -1,14 +1,23 @@
+import {delayedRunnable, SequentialAsyncQueue} from "./queue";
+import {Accessor, createSignal, Setter} from "solid-js";
+import {Message, Question} from "./models/messages";
+import {BeatType, Game} from "./models/game";
+import {typingDelayMsPerCharacter} from "./util/timing-util";
+
 export class GameEngine {
 
-  private readonly _printedLines: DialogLine[] = [];
+  readonly messages: Accessor<Message[]>;
+  readonly activeQuestion: Accessor<Question | undefined>;
+
+  private readonly _messageQueue = new SequentialAsyncQueue();
+  private readonly _setMessages: Setter<Message[]>;
+  private readonly _setActiveQuestion: Setter<Question | undefined>;
 
   private _nextBeatIndex = 0;
-  private _activeQuestion?: Question;
 
-  constructor(private _game: Game,
-              private _onLinesChanged: (_: DialogLine[]) => void,
-              private _onQuestionActiveChanged: (_: boolean) => void,
-              private _onQuestionSuccessful: () => void) {
+  constructor(private _game: Game, private _onQuestionSuccessful: () => void) {
+    [this.activeQuestion, this._setActiveQuestion] = createSignal<Question | undefined>(undefined);
+    [this.messages, this._setMessages] = createSignal<Message[]>([]);
   }
 
   progressDialog() {
@@ -16,32 +25,73 @@ export class GameEngine {
       const nextBeat = this._game.beats[this._nextBeatIndex];
       this._nextBeatIndex++;
       switch (nextBeat.beatType) {
-        case BeatType.DialogLine:
-          this.playDialogBeat(nextBeat as DialogLine);
+        case BeatType.Message:
+          this._playMessageBeat(nextBeat as Message);
           break;
         case BeatType.Question:
-          this.playQuestionBeat(nextBeat as Question);
+          this._playQuestionBeat(nextBeat as Question);
           return;
       }
     }
   }
 
-  private addAgentLine(line: string) {
-    this._printedLines.push(new DialogLine(line, false));
-    this._onLinesChanged([...this._printedLines]);
+  private _playMessageBeat(dialogLine: Message) {
+    this._sendAgentMessage(new Message(dialogLine.text, false));
   }
 
-  private addUserLine(line: string) {
-    this._printedLines.push(new DialogLine(line, true));
-    this._onLinesChanged([...this._printedLines]);
+  private _playQuestionBeat(question: Question) {
+    if (question.prompt) {
+      const message = new Message(question.prompt, false);
+      this._sendAgentMessage(message, () => this._setActiveQuestion(question));
+    }
   }
 
-  private isCorrectAnswer(answer: string): boolean {
-    const question = this._activeQuestion;
+  private _sendAgentMessage(message: Message, onSent?: () => void) {
+    this._messageQueue.enqueue(delayedRunnable(async () => {
+      this._addMessage(message);
+      if (onSent) {
+        onSent();
+      }
+    }, this._calculateTypingDelay(message)));
+  }
+
+  private _calculateTypingDelay(messsage: Message): number {
+    return messsage.text.length * typingDelayMsPerCharacter();
+  }
+
+  private _addUserMessage(line: string) {
+    this._addMessage(new Message(line, true));
+  }
+
+  private _addMessage(message: Message) {
+    this._setMessages([...this.messages(), message])
+  }
+
+  onNewAnswer(answer: string) {
+    const question = this.activeQuestion();
+    this._setActiveQuestion(undefined);
+
     if (!question) {
-      return false;
+      return;
     }
 
+    this._addUserMessage(answer);
+
+    if (!this.isCorrectAnswer(answer, question)) {
+      const message = new Message(question.responseToIncorrectAnswer, false);
+      this._sendAgentMessage(message, () => this._setActiveQuestion(question));
+      return;
+    }
+
+    if (question.responseToCorrectAnswer) {
+      this._sendAgentMessage(new Message(question.responseToCorrectAnswer, false));
+    }
+
+    this._onQuestionSuccessful();
+    this.progressDialog();
+  }
+
+  private isCorrectAnswer(answer: string, question: Question): boolean {
     return question.correctAnswers.some(correctAnswer => {
       if (question.allowSubstringMatch) {
         return question.respectCase
@@ -54,167 +104,4 @@ export class GameEngine {
       }
     });
   }
-
-  onNewAnswer(answer: string) {
-    const question = this._activeQuestion;
-
-    if (!question) {
-      return;
-    }
-
-    this.addUserLine(answer);
-
-    if (!this.isCorrectAnswer(answer)) {
-      this.addAgentLine(question.responseToIncorrectAnswer);
-      return;
-    }
-
-    if (question.responseToCorrectAnswer) {
-      this.addAgentLine(question.responseToCorrectAnswer);
-    }
-    this._activeQuestion = undefined;
-    this._onQuestionActiveChanged(false);
-    this._onQuestionSuccessful();
-    this.progressDialog();
-  }
-
-  private playDialogBeat(dialogLine: DialogLine) {
-    this.addAgentLine(dialogLine.text);
-  }
-
-  private playQuestionBeat(question: Question) {
-    this._activeQuestion = question;
-    this._onQuestionActiveChanged(true);
-    if (question.prompt) {
-      this.addAgentLine(question.prompt);
-    }
-  }
-}
-
-export enum BeatType {
-  DialogLine,
-  Question,
-}
-
-export class Beat {
-  constructor(private _beatType: BeatType) {
-  }
-
-  get beatType(): BeatType {
-    return this._beatType;
-  }
-}
-
-export class DialogLine extends Beat {
-
-  constructor(private _text: string, private _isUser: boolean) {
-    super(BeatType.DialogLine);
-  }
-
-  get text(): string {
-    return this._text;
-  }
-
-  get isUser(): boolean {
-    return this._isUser;
-  }
-
-  static of(text: string): DialogLine {
-    return new DialogLine(text, false);
-  }
-}
-
-export class Question extends Beat {
-  constructor(private _correctAnswers: string[],
-              private _responseToIncorrectAnswer: string,
-              private _prompt?: string,
-              private _responseToCorrectAnswer?: string,
-              private _respectCase?: boolean,
-              private _allowSubstringMatch?: boolean) {
-    super(BeatType.Question);
-  }
-
-  get correctAnswers(): string[] {
-    return this._correctAnswers;
-  }
-
-  get responseToIncorrectAnswer(): string {
-    return this._responseToIncorrectAnswer;
-  }
-
-  get prompt(): string | undefined {
-    return this._prompt;
-  }
-
-  get responseToCorrectAnswer(): string | undefined {
-    return this._responseToCorrectAnswer;
-  }
-
-  get respectCase(): boolean {
-    return !!this._respectCase;
-  }
-
-  get allowSubstringMatch(): boolean {
-    return !!this._allowSubstringMatch;
-  }
-
-  static create(): QuestionBuilder {
-    return new QuestionBuilder();
-  }
-}
-
-export class QuestionBuilder {
-
-  private _correctAnswers?: string[];
-  private _responseToIncorrectAnswer?: string;
-  private _prompt?: string;
-  private _responseToCorrectAnswer?: string;
-  private _respectCase?: boolean;
-  private _allowSubstringMatch?: boolean;
-
-  withCorrectAnswers(correctAnswers: string[]) {
-    this._correctAnswers = correctAnswers;
-    return this;
-  }
-
-  withAllowSubstringMatch(allowSubstringMatch: boolean) {
-    this._allowSubstringMatch = allowSubstringMatch;
-    return this;
-  }
-
-  withResponseToIncorrectAnswer(responseToIncorrectAnswer: string) {
-    this._responseToIncorrectAnswer = responseToIncorrectAnswer;
-    return this;
-  }
-
-  withPrompt(prompt: string) {
-    this._prompt = prompt;
-    return this;
-  }
-
-  withResponseToCorrectAnswer(responseToCorrectAnswer: string) {
-    this._responseToCorrectAnswer = responseToCorrectAnswer;
-    return this;
-  }
-
-  build(): Question {
-    if (!this._correctAnswers) {
-      throw 'correctAnswer is required';
-    }
-    if (!this._responseToIncorrectAnswer) {
-      throw 'responseToIncorrectAnswer is required';
-    }
-    return new Question(
-      this._correctAnswers,
-      this._responseToIncorrectAnswer,
-      this._prompt,
-      this._responseToCorrectAnswer,
-      this._respectCase,
-      this._allowSubstringMatch,
-    );
-  }
-}
-
-export interface Game {
-  beats: Beat[]
 }

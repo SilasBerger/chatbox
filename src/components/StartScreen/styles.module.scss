@@ -1,0 +1,26 @@
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.startButton {
+  font-family: inherit;
+  font-size: 3rem;
+  background-color: transparent;
+  box-shadow: none;
+  color: #00ff00;
+  border: none;
+  cursor: pointer;
+  transition: scale 0.2s;
+  padding: 2rem;
+
+  &:hover {
+    scale: 1.1;
+  }
+}
+
