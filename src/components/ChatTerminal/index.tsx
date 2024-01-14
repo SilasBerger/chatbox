@@ -1,9 +1,10 @@
 import {createSignal, For, Setter, Show} from "solid-js";
 import styles from './styles.module.scss'
-import {Message, GameEngine} from "../../core/game-engine";
+import {GameEngine} from "../../core/game-engine";
 import {cryptoBasics} from "../../games/cryptoBasics";
 import OutputLine from "../OutputLine";
 import InputLine from "../InputLine";
+import {Message} from "../../core/models/messages";
 
 export default ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<number>}) => {
 

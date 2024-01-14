@@ -1,4 +1,5 @@
-import {Message, Game, Question} from "../core/game-engine";
+import {Game} from "../core/models/game";
+import {Message, Question} from "../core/models/messages";
 
 export const cryptoBasics: Game = {
   beats: [
