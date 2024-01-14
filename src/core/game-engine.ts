@@ -59,7 +59,12 @@ export class GameEngine {
       if (onSent) {
         onSent();
       }
-    }, 1000));
+    }, this._calculateTypingDelay(message)));
+  }
+
+  private _calculateTypingDelay(messsage: Message): number {
+    const msPerCharacter = (1 / 1000) * 60000;
+    return messsage.text.length * msPerCharacter;
   }
 
   private _addUserMessage(line: string) {
