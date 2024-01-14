@@ -1,12 +1,15 @@
+import {delayedRunnable, SequentialAsyncQueue} from "./queue";
+
 export class GameEngine {
 
-  private readonly _printedLines: DialogLine[] = [];
+  private readonly _printedLines: Message[] = [];
+  private readonly _messageQueue = new SequentialAsyncQueue();
 
   private _nextBeatIndex = 0;
   private _activeQuestion?: Question;
 
   constructor(private _game: Game,
-              private _onLinesChanged: (_: DialogLine[]) => void,
+              private _onMessagesUpdated: (_: Message[]) => void,
               private _onQuestionActiveChanged: (_: boolean) => void,
               private _onQuestionSuccessful: () => void) {
   }
@@ -16,8 +19,8 @@ export class GameEngine {
       const nextBeat = this._game.beats[this._nextBeatIndex];
       this._nextBeatIndex++;
       switch (nextBeat.beatType) {
-        case BeatType.DialogLine:
-          this.playDialogBeat(nextBeat as DialogLine);
+        case BeatType.Message:
+          this.playMessageBeat(nextBeat as Message);
           break;
         case BeatType.Question:
           this.playQuestionBeat(nextBeat as Question);
@@ -26,14 +29,15 @@ export class GameEngine {
     }
   }
 
-  private addAgentLine(line: string) {
-    this._printedLines.push(new DialogLine(line, false));
-    this._onLinesChanged([...this._printedLines]);
+  private _sendAgentMessage(message: Message) {
+    this._messageQueue.enqueue(delayedRunnable(() => {
+      this._printedLines.push(message);
+      this._onMessagesUpdated([...this._printedLines]);
+    }, 1000));
   }
-
-  private addUserLine(line: string) {
-    this._printedLines.push(new DialogLine(line, true));
-    this._onLinesChanged([...this._printedLines]);
+  private _addUserMessage(line: string) {
+    this._printedLines.push(new Message(line, true));
+    this._onMessagesUpdated([...this._printedLines]);
   }
 
   private isCorrectAnswer(answer: string): boolean {
@@ -62,15 +66,15 @@ export class GameEngine {
       return;
     }
 
-    this.addUserLine(answer);
+    this._addUserMessage(answer);
 
     if (!this.isCorrectAnswer(answer)) {
-      this.addAgentLine(question.responseToIncorrectAnswer);
+      this._sendAgentMessage(new Message(question.responseToIncorrectAnswer, false));
       return;
     }
 
     if (question.responseToCorrectAnswer) {
-      this.addAgentLine(question.responseToCorrectAnswer);
+      this._sendAgentMessage(new Message(question.responseToCorrectAnswer, false));
     }
     this._activeQuestion = undefined;
     this._onQuestionActiveChanged(false);
@@ -78,25 +82,25 @@ export class GameEngine {
     this.progressDialog();
   }
 
-  private playDialogBeat(dialogLine: DialogLine) {
-    this.addAgentLine(dialogLine.text);
+  private playMessageBeat(dialogLine: Message) {
+    this._sendAgentMessage(new Message(dialogLine.text, false));
   }
 
   private playQuestionBeat(question: Question) {
     this._activeQuestion = question;
     this._onQuestionActiveChanged(true);
     if (question.prompt) {
-      this.addAgentLine(question.prompt);
+      this._sendAgentMessage(new Message(question.prompt, false));
     }
   }
 }
 
 export enum BeatType {
-  DialogLine,
+  Message,
   Question,
 }
 
-export class Beat {
+export class StoryBeat {
   constructor(private _beatType: BeatType) {
   }
 
@@ -105,10 +109,10 @@ export class Beat {
   }
 }
 
-export class DialogLine extends Beat {
+export class Message extends StoryBeat {
 
   constructor(private _text: string, private _isUser: boolean) {
-    super(BeatType.DialogLine);
+    super(BeatType.Message);
   }
 
   get text(): string {
@@ -119,12 +123,12 @@ export class DialogLine extends Beat {
     return this._isUser;
   }
 
-  static of(text: string): DialogLine {
-    return new DialogLine(text, false);
+  static of(text: string): Message {
+    return new Message(text, false);
   }
 }
 
-export class Question extends Beat {
+export class Question extends StoryBeat {
   constructor(private _correctAnswers: string[],
               private _responseToIncorrectAnswer: string,
               private _prompt?: string,
@@ -216,5 +220,5 @@ export class QuestionBuilder {
 }
 
 export interface Game {
-  beats: Beat[]
+  beats: StoryBeat[]
 }

@@ -1,13 +1,13 @@
 import {createSignal, For, Setter, Show} from "solid-js";
 import styles from './styles.module.scss'
-import {DialogLine, GameEngine} from "../../core/game-engine";
+import {Message, GameEngine} from "../../core/game-engine";
 import {cryptoBasics} from "../../games/cryptoBasics";
 import OutputLine from "../OutputLine";
 import InputLine from "../InputLine";
 
 export default ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<number>}) => {
 
-  const [lines, setLines] = createSignal<DialogLine[]>([]);
+  const [lines, setLines] = createSignal<Message[]>([]);
   const [questionActive, setQuestionActive] = createSignal(false);
 
   const onQuestionSuccessful = () => {
@@ -19,7 +19,7 @@ export default ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<
 
   const gameEngine = new GameEngine(
     cryptoBasics,
-    (lines: DialogLine[]) => setLines(lines),
+    (lines: Message[]) => setLines(lines),
     (questionActive: boolean) => setQuestionActive(questionActive),
     onQuestionSuccessful);
   gameEngine.progressDialog();
@@ -30,7 +30,7 @@ export default ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<
 
   return (
     <div class={styles.TerminalWindow}>
-      <For each={lines()}>{(dialogLine: DialogLine) =>
+      <For each={lines()}>{(dialogLine: Message) =>
         <OutputLine text={dialogLine.text} isUser={dialogLine.isUser} />
       }
       </For>
