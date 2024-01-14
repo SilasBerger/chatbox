@@ -3,14 +3,15 @@ import {createSignal} from "solid-js";
 
 import styles from './App.module.scss';
 import ChatboxUi from "./components/ChatboxUi";
+import StartScreen from "./components/StartScreen";
 
 const App: Component = () => {
 
-  const [numSuccessfulQuestions, setNumSuccessfulQuestions] = createSignal(0);
+  const [started, setStarted] = createSignal(false);
 
   return (
     <div class={styles.App}>
-      <ChatboxUi></ChatboxUi>
+      {started() ? <ChatboxUi /> : <StartScreen onStart={() => setStarted(true)} />}
     </div>
   );
 };

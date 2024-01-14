@@ -30,10 +30,10 @@ export class GameEngine {
   }
 
   private _sendAgentMessage(message: Message) {
-    this._messageQueue.enqueue(delayedRunnable(() => {
+    this._messageQueue.enqueue(delayedRunnable(async () => {
       this._printedLines.push(message);
       this._onMessagesUpdated([...this._printedLines]);
-    }, 1000));
+    }, 2000));
   }
   private _addUserMessage(line: string) {
     this._printedLines.push(new Message(line, true));
