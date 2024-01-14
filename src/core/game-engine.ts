@@ -2,6 +2,7 @@ import {delayedRunnable, SequentialAsyncQueue} from "./queue";
 import {Accessor, createSignal, Setter} from "solid-js";
 import {Message, Question} from "./models/messages";
 import {BeatType, Game} from "./models/game";
+import {typingDelayMsPerCharacter} from "./util/timing-util";
 
 export class GameEngine {
 
@@ -55,8 +56,7 @@ export class GameEngine {
   }
 
   private _calculateTypingDelay(messsage: Message): number {
-    const msPerCharacter = (1 / 1000) * 60000;
-    return messsage.text.length * msPerCharacter;
+    return messsage.text.length * typingDelayMsPerCharacter();
   }
 
   private _addUserMessage(line: string) {
