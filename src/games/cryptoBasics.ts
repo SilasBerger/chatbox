@@ -7,7 +7,7 @@ export const cryptoBasics: Game = {
     Message.of('Mein Name ist Special Agent Charles Marsh. Ich benötige dringend Ihre Hilfe.'),
     Message.of('Satellit D-128q hat heute um 04:37 UTC-0900 eine verdächtige Nachricht abgefangen.'),
     Message.of('Wir haben Grund zur Annahme, dass es sich beim Absender um den französichen Diplomaten Blaise de Vigenère handelt.'),
-    Message.of('Wir haben keine Ahnung, für wen sie bestimmt ist, oder was der Inhalt sein könnte.'),
+    Message.of('Wir haben keine Ahnung für wen sie bestimmt ist, oder was der Inhalt sein könnte.'),
     Message.of('Die Nachricht lautet: EFPZSUOOK'),
     Message.of('Aus sicherer Quelle wissen wir, dass die Nachricht mit dem Schlüsselwort COBRA verschlüsselt wurde.'),
     Message.of('Leider finden wir nicht heraus, welches Verschlüsselungsverfahren dazu verwendet wurde.'),
@@ -22,7 +22,7 @@ export const cryptoBasics: Game = {
     Message.of('Einer unserer besten Agenten ist in grosser Gefahr und muss dringend exfiltriert werden.'),
     Message.of('SecOps-5 erwartet ihn morgen bei Sonnenaufgang am Treffpunkt KAUFHAUS.'),
     Question.create()
-      .withPrompt('Verschlüsseln Sie bitte den Namen des Treffpunkts mit dem Schlüsselwort ELIXIR. Verwenden Sie ebenfalls das Vigenère verfahren.')
+      .withPrompt('Verschlüsseln Sie bitte den Namen des Treffpunkts mit dem Schlüsselwort ELIXIR. Verwenden Sie ebenfalls das Vigenère-Verfahren.')
       .withCorrectAnswers(['OLCCPRYD'])
       .withAllowSubstringMatch(true)
       .withResponseToIncorrectAnswer('Hmm... Da scheint etwas noch nicht ganz zu stimmen.')
@@ -42,4 +42,4 @@ export const cryptoBasics: Game = {
       .build(),
     Message.of('Im Namen der Agency danke ich Ihnen für Ihre Hilfe. Passen Sie auf sich auf!'),
   ],
-}
+};
