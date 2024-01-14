@@ -1,17 +1,25 @@
 import {delayedRunnable, SequentialAsyncQueue} from "./queue";
+import {Accessor, createSignal, Setter} from "solid-js";
 
 export class GameEngine {
 
+  readonly activeQuestion: Accessor<Question | undefined>;
+
   private readonly _printedLines: Message[] = [];
   private readonly _messageQueue = new SequentialAsyncQueue();
+  private readonly _setActiveQuestion: Setter<Question | undefined>;
 
   private _nextBeatIndex = 0;
-  private _activeQuestion?: Question;
 
   constructor(private _game: Game,
               private _onMessagesUpdated: (_: Message[]) => void,
-              private _onQuestionActiveChanged: (_: boolean) => void,
               private _onQuestionSuccessful: () => void) {
+    const [
+      activeQuestion,
+      setActiveQuestion
+    ] = createSignal<Question | undefined>(undefined);
+    this.activeQuestion = activeQuestion;
+    this._setActiveQuestion = setActiveQuestion;
   }
 
   progressDialog() {
@@ -20,19 +28,33 @@ export class GameEngine {
       this._nextBeatIndex++;
       switch (nextBeat.beatType) {
         case BeatType.Message:
-          this.playMessageBeat(nextBeat as Message);
+          this._playMessageBeat(nextBeat as Message);
           break;
         case BeatType.Question:
-          this.playQuestionBeat(nextBeat as Question);
+          this._playQuestionBeat(nextBeat as Question);
           return;
       }
     }
   }
 
-  private _sendAgentMessage(message: Message) {
+  private _playMessageBeat(dialogLine: Message) {
+    this._sendAgentMessage(new Message(dialogLine.text, false));
+  }
+
+  private _playQuestionBeat(question: Question) {
+    if (question.prompt) {
+      const message = new Message(question.prompt, false);
+      this._sendAgentMessage(message, () => this._setActiveQuestion(question));
+    }
+  }
+
+  private _sendAgentMessage(message: Message, onSent?: () => void) {
     this._messageQueue.enqueue(delayedRunnable(async () => {
       this._printedLines.push(message);
       this._onMessagesUpdated([...this._printedLines]);
+      if (onSent) {
+        onSent();
+      }
     }, 2000));
   }
   private _addUserMessage(line: string) {
@@ -40,12 +62,31 @@ export class GameEngine {
     this._onMessagesUpdated([...this._printedLines]);
   }
 
-  private isCorrectAnswer(answer: string): boolean {
-    const question = this._activeQuestion;
+  onNewAnswer(answer: string) {
+    const question = this.activeQuestion();
+    this._setActiveQuestion(undefined);
+
     if (!question) {
-      return false;
+      return;
     }
 
+    this._addUserMessage(answer);
+
+    if (!this.isCorrectAnswer(answer, question)) {
+      const message = new Message(question.responseToIncorrectAnswer, false);
+      this._sendAgentMessage(message, () => this._setActiveQuestion(question));
+      return;
+    }
+
+    if (question.responseToCorrectAnswer) {
+      this._sendAgentMessage(new Message(question.responseToCorrectAnswer, false));
+    }
+
+    this._onQuestionSuccessful();
+    this.progressDialog();
+  }
+
+  private isCorrectAnswer(answer: string, question: Question): boolean {
     return question.correctAnswers.some(correctAnswer => {
       if (question.allowSubstringMatch) {
         return question.respectCase
@@ -57,41 +98,6 @@ export class GameEngine {
           : answer.toLowerCase() == correctAnswer.toLowerCase();
       }
     });
-  }
-
-  onNewAnswer(answer: string) {
-    const question = this._activeQuestion;
-
-    if (!question) {
-      return;
-    }
-
-    this._addUserMessage(answer);
-
-    if (!this.isCorrectAnswer(answer)) {
-      this._sendAgentMessage(new Message(question.responseToIncorrectAnswer, false));
-      return;
-    }
-
-    if (question.responseToCorrectAnswer) {
-      this._sendAgentMessage(new Message(question.responseToCorrectAnswer, false));
-    }
-    this._activeQuestion = undefined;
-    this._onQuestionActiveChanged(false);
-    this._onQuestionSuccessful();
-    this.progressDialog();
-  }
-
-  private playMessageBeat(dialogLine: Message) {
-    this._sendAgentMessage(new Message(dialogLine.text, false));
-  }
-
-  private playQuestionBeat(question: Question) {
-    this._activeQuestion = question;
-    this._onQuestionActiveChanged(true);
-    if (question.prompt) {
-      this._sendAgentMessage(new Message(question.prompt, false));
-    }
   }
 }
 
