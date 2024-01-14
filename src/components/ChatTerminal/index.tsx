@@ -18,6 +18,7 @@ export default ({gameEngine}: Props) => {
     gameEngine.onNewAnswer(inputValue);
   }
 
+  // TODO: Reset typing indicator on new message. Possibly get some isTyping info from game engine instead too.
   const terminal = (
     <div class={styles.TerminalWindow}>
       <For each={gameEngine.messages()}>{(dialogLine: Message) =>
