@@ -7,8 +7,6 @@ import InputLine from "../InputLine";
 
 export default ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<number>}) => {
 
-  const [lines, setLines] = createSignal<Message[]>([]);
-
   const onQuestionSuccessful = () => {
     numSuccessfulQuestions++;
     setNumSuccessfulQuestions(numSuccessfulQuestions);
@@ -18,7 +16,6 @@ export default ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<
 
   const gameEngine = new GameEngine(
     cryptoBasics,
-    (lines: Message[]) => setLines(lines),
     onQuestionSuccessful);
   gameEngine.progressDialog();
 
@@ -28,7 +25,7 @@ export default ({setNumSuccessfulQuestions}: {setNumSuccessfulQuestions: Setter<
 
   return (
     <div class={styles.TerminalWindow}>
-      <For each={lines()}>{(dialogLine: Message) =>
+      <For each={gameEngine.messages()}>{(dialogLine: Message) =>
         <OutputLine text={dialogLine.text} isUser={dialogLine.isUser} />
       }
       </For>

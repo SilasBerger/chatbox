@@ -3,23 +3,26 @@ import {Accessor, createSignal, Setter} from "solid-js";
 
 export class GameEngine {
 
+  readonly messages: Accessor<Message[]>;
   readonly activeQuestion: Accessor<Question | undefined>;
 
-  private readonly _printedLines: Message[] = [];
   private readonly _messageQueue = new SequentialAsyncQueue();
+  private readonly _setMessages: Setter<Message[]>;
   private readonly _setActiveQuestion: Setter<Question | undefined>;
 
   private _nextBeatIndex = 0;
 
-  constructor(private _game: Game,
-              private _onMessagesUpdated: (_: Message[]) => void,
-              private _onQuestionSuccessful: () => void) {
+  constructor(private _game: Game, private _onQuestionSuccessful: () => void) {
     const [
       activeQuestion,
       setActiveQuestion
     ] = createSignal<Question | undefined>(undefined);
     this.activeQuestion = activeQuestion;
     this._setActiveQuestion = setActiveQuestion;
+
+    const [messages, setMessages] = createSignal<Message[]>([]);
+    this.messages = messages;
+    this._setMessages = setMessages;
   }
 
   progressDialog() {
@@ -50,16 +53,19 @@ export class GameEngine {
 
   private _sendAgentMessage(message: Message, onSent?: () => void) {
     this._messageQueue.enqueue(delayedRunnable(async () => {
-      this._printedLines.push(message);
-      this._onMessagesUpdated([...this._printedLines]);
+      this._addMessage(message);
       if (onSent) {
         onSent();
       }
-    }, 2000));
+    }, 1000));
   }
+
   private _addUserMessage(line: string) {
-    this._printedLines.push(new Message(line, true));
-    this._onMessagesUpdated([...this._printedLines]);
+    this._addMessage(new Message(line, true));
+  }
+
+  private _addMessage(message: Message) {
+    this._setMessages([...this.messages(), message])
   }
 
   onNewAnswer(answer: string) {
