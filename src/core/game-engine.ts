@@ -55,7 +55,7 @@ export class GameEngine {
   }
 
   private _calculateTypingDelay(messsage: Message): number {
-    const msPerCharacter = (1 / 10000) * 60000;
+    const msPerCharacter = (1 / 1000) * 60000;
     return messsage.text.length * msPerCharacter;
   }
 

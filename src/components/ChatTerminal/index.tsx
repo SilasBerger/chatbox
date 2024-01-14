@@ -24,6 +24,9 @@ export default ({gameEngine}: Props) => {
         <OutputLine text={dialogLine.text} isUser={dialogLine.isUser}/>
       }
       </For>
+      <Show when={!inputActive()}>
+        <OutputLine isUser={false}/>
+      </Show>
       <Show when={inputActive()}>
         <InputLine onInputEntered={onInputEntered} active={inputActive}/>
       </Show>
